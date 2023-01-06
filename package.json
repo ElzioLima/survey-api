@@ -25,6 +25,7 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/swagger": "^6.1.4",
     "bcrypt": "^5.0.1",
     "joi": "^17.6.4",
     "jsonwebtoken": "^8.5.1",

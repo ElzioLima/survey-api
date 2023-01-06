@@ -2,8 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CreateUser, UpdateUser, ListUser, ListOneUser, DeleteUser } from '@/data/use-cases';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller()
+@ApiTags('Usuários')
+@ApiResponse({ status: 200, description: 'Ok' })
 export class UsersController {
   constructor(
     private readonly createUser: CreateUser,
