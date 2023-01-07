@@ -52,10 +52,6 @@ export class PgUserRepository
     const skip = Number(process.env.PAGINATION_LIMIT) * (input.page - 1)
     const take = Number(process.env.PAGINATION_LIMIT)
     const pgUserRepo = this.getRepository(PgUser)
-    console.log(JSON.stringify({
-      skip,
-      take
-    }))
     const pgUserList = pgUserRepo.find({
       cache: {id: `users:skip=${skip}:take=${take}`, milliseconds: 1000 * 60},
       skip,
