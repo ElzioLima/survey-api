@@ -21,9 +21,9 @@ export class UsersController {
     return this.createUser.create(createUserDto);
   }
 
-  @Get('/usuarios')
-  findAll() {
-    return this.listUser.list();
+  @Get('/usuarios/:page')
+  findAll(@Param('page') page: number) {
+    return this.listUser.list({ page });
   }
 
   @Get('/usuario/:id')

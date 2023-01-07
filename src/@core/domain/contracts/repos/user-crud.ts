@@ -30,10 +30,14 @@ export namespace DBUpdateUser {
 }
 
 export interface DBListUser {
-  list: () => Promise<DBListUser.Output>
+  list: (input: DBListUser.Input) => Promise<DBListUser.Output>
 }
 
 export namespace DBListUser {
+  export type Input = {
+    page: number
+  }
+
   export type Output = undefined | Array<{
     id: string
     name: string

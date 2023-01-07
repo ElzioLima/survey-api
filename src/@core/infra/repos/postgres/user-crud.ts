@@ -48,9 +48,19 @@ export class PgUserRepository
     }
   }
 
-  async list (): Promise<DBListUser.Output> {
+  async list ( input: DBListUser.Input ): Promise<DBListUser.Output> {
+    const skip = Number(process.env.PAGINATION_LIMIT) * (input.page - 1)
+    const take = Number(process.env.PAGINATION_LIMIT)
     const pgUserRepo = this.getRepository(PgUser)
-    const pgUserList = pgUserRepo.find({cache: {id: "users", milliseconds: 1000 * 60}})
+    console.log(JSON.stringify({
+      skip,
+      take
+    }))
+    const pgUserList = pgUserRepo.find({
+      cache: {id: `users:skip=${skip}:take=${take}`, milliseconds: 1000 * 60},
+      skip,
+      take
+    })
     return (await pgUserList).map(({ id, name, password, cpf }) => {
       return {
         id: id ?? undefined,

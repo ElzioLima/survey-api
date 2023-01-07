@@ -44,10 +44,14 @@ export namespace DeleteUserUsecase {
 }
 
 export interface ListUserUsecase {
-  list: () => Promise<ListUserUsecase.Output>
+  list: (input: ListUserUsecase.Input) => Promise<ListUserUsecase.Output>
 }
 
 export namespace ListUserUsecase {
+  export type Input = {
+    page: number
+  }
+
   export type Output = {
     name: string
     password: string

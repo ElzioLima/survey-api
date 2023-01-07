@@ -7,8 +7,8 @@ export class ListUser implements ListUserUsecase{
     private readonly userRepo: DBListUser
   ) {}
 
-  async list (): Promise<ListUserUsecase.Output> {
-    const userData = await this.userRepo.list()
+  async list (input: ListUserUsecase.Input): Promise<ListUserUsecase.Output> {
+    const userData = await this.userRepo.list({ page: input.page })
     if (userData != null) {
       const userList = userData.map((user) => {
         return new User(user)
