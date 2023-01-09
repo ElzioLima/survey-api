@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, DeleteDateColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, DeleteDateColumn, CreateDateColumn, UpdateDateColumn, OneToMany, JoinTable } from 'typeorm'
+import { PgSurvey } from './survey'
 
 @Entity({ name: 'users' })
 export class PgUser {
@@ -17,12 +18,15 @@ export class PgUser {
   @Column({ nullable: true })
   token!: string
 
-  @CreateDateColumn({ nullable: true })
+  @OneToMany((type) => PgSurvey, (survey) => survey.user)
+  surveys: Promise<PgSurvey[]>;
+
+  @CreateDateColumn({ name: "created_at", nullable: false })
   createdAt!: Date
 
-  @UpdateDateColumn({ nullable: true })
+  @UpdateDateColumn({ name: "updated_at", nullable: false })
   updatedAt!: Date
 
-  @DeleteDateColumn({ nullable: false })
+  @DeleteDateColumn({ name: "deleted_at", nullable: true })
   deletedAt!: Date
 }
