@@ -5,33 +5,28 @@ import {
   DeleteDateColumn, 
   CreateDateColumn, 
   UpdateDateColumn, 
-  ManyToOne,
-  OneToMany
+  ManyToOne
 } from 'typeorm'
-import { PgAnswer } from './answer'
-import { PgSurvey } from './survey'
+import { PgQuestion } from './question'
+import { PgUser } from './user'
 
-@Entity({ name: 'questions' })
-export class PgQuestion {
+@Entity({ name: 'answers' })
+export class PgAnswer {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
   @Column()
   description!: string
 
-  @Column()
-  questionCod!: string
-
-  @ManyToOne((type) => PgSurvey, (survey) => survey.questions, {
+  @ManyToOne((type) => PgQuestion, (question) => question.answers, {
     onDelete: "CASCADE"
   })
-  survey: Promise<PgSurvey>;
+  question: PgQuestion;
 
-  @OneToMany((type) => PgAnswer, (answer) => answer.question, {
-    onDelete: "CASCADE",
-    cascade: ["update", "remove"]
+  @ManyToOne((type) => PgUser, (user) => user.answers, {
+    onDelete: "CASCADE"
   })
-  answers: Promise<PgAnswer[]>;
+  user: PgUser;
 
   @CreateDateColumn({ name: "created_at", nullable: false })
   createdAt!: Date

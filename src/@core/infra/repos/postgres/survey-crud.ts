@@ -1,4 +1,4 @@
-import { PgQuestion, PgSurvey, PgUser } from '@/infra/repos/postgres/entities'
+import { PgAnswer, PgQuestion, PgSurvey, PgUser } from '@/infra/repos/postgres/entities'
 import { PgRepository } from '@/infra/repos/postgres/repository'
 import {
   DBCreateSurvey,
@@ -7,6 +7,7 @@ import {
   DBUpdateSurvey,
   DBDeleteSurvey
 } from '@/domain/contracts/repos'
+import { In } from 'typeorm'
 
 export class PgSurveyRepository 
   extends 
@@ -60,7 +61,12 @@ export class PgSurveyRepository
     })
     if (pgSurvey != null) {
       const pgQuestionRepo = this.getRepository(PgQuestion)
-      await pgQuestionRepo.remove(await pgSurvey.questions)
+      const pgAnswerRepo = this.getRepository(PgAnswer)
+      if (oldQuestions !== undefined && newQuestions !== undefined) {
+        const questions = oldQuestions.concat(newQuestions.map(({ id }) => id))
+        await pgAnswerRepo.createQueryBuilder().delete().where({ question: In(oldQuestions) }).execute()
+      }
+        await pgQuestionRepo.remove(await pgSurvey.questions)
       const pgQuestions = await pgQuestionRepo.save(newQuestions)
       if (pgQuestions !== undefined) {
         (await pgSurvey.questions).push(...pgQuestions)

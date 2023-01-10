@@ -7,6 +7,7 @@ export class UpdateSurveyDto {
     description: string;
     @ApiProperty({ required: true })
     newQuestions: {
+        id: string;
         description: string;
         questionCod: string;
     }[];

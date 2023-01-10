@@ -34,6 +34,7 @@ export namespace DBUpdateSurvey {
     name: string
     description: string
     newQuestions: {
+      id: string,
       description: string,
       questionCod: string
     }[]

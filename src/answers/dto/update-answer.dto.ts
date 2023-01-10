@@ -1,4 +1,10 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateAnswerDto } from './create-answer.dto';
+import { ApiProperty } from "@nestjs/swagger"
 
-export class UpdateAnswerDto extends PartialType(CreateAnswerDto) {}
+export class UpdateAnswerDto {
+    @ApiProperty()
+    description: string
+    @ApiProperty()
+    questionId: string
+    @ApiProperty()
+    userId: string
+}

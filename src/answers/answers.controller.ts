@@ -1,34 +1,34 @@
+import { CreateAnswer, DeleteAnswer, ListOneAnswer, UpdateAnswer } from '@/data/use-cases/answer';
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { AnswersService } from './answers.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 
-@Controller('answers')
+@Controller()
 export class AnswersController {
-  constructor(private readonly answersService: AnswersService) {}
+  constructor(
+    private readonly createAnswer: CreateAnswer,
+    private readonly updateAnswer: UpdateAnswer,
+    private readonly listOneAnswer: ListOneAnswer,
+    private readonly deleteAnswer: DeleteAnswer
+  ) {}
 
-  @Post()
+  @Post('questionario/:id/resposta')
   create(@Body() createAnswerDto: CreateAnswerDto) {
-    return this.answersService.create(createAnswerDto);
+    return this.createAnswer.create(createAnswerDto);
   }
 
-  @Get()
-  findAll() {
-    return this.answersService.findAll();
-  }
-
-  @Get(':id')
+  @Get('questionario/:id/resposta/:id')
   findOne(@Param('id') id: string) {
-    return this.answersService.findOne(+id);
+    return this.listOneAnswer.listOne({ id });
   }
 
-  @Patch(':id')
+  @Patch('questionario/:id/resposta/:id')
   update(@Param('id') id: string, @Body() updateAnswerDto: UpdateAnswerDto) {
-    return this.answersService.update(+id, updateAnswerDto);
+    return this.updateAnswer.update({ id, ...updateAnswerDto });
   }
 
-  @Delete(':id')
+  @Delete('questionario/:id/resposta/:id')
   remove(@Param('id') id: string) {
-    return this.answersService.remove(+id);
+    return this.deleteAnswer.delete({ id });
   }
 }
