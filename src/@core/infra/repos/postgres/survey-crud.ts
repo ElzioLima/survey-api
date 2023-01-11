@@ -1,4 +1,4 @@
-import { PgAnswer, PgQuestion, PgSurvey, PgUser } from '@/infra/repos/postgres/entities'
+import { PgQuestion, PgSurvey } from '@/infra/repos/postgres/entities'
 import { PgRepository } from '@/infra/repos/postgres/repository'
 import {
   DBCreateSurvey,
@@ -21,65 +21,44 @@ export class PgSurveyRepository
 {
   async create ({ name, description, questions, userId }: DBCreateSurvey.Input): Promise<DBCreateSurvey.Output> {
     const pgSurveyRepo = this.getRepository(PgSurvey)
-    const pgQuestionRepo = this.getRepository(PgQuestion)
-    const pgSurvey = await pgSurveyRepo.save({ name, description, user: Promise.resolve() })
-    const pgSurveySaved = await pgSurveyRepo.findOne(pgSurvey.id)
-    if (pgSurveySaved !== undefined) {
-      const pgUserRepo = this.getRepository(PgUser)
-      const pgUser = await pgUserRepo.findOne(userId)
-      if (pgUser !== undefined) {
-        pgSurveySaved.user = Promise.resolve(pgUser)
-      }
-      const pgQuestion = await pgQuestionRepo.save(questions)
-      if (pgQuestion !== undefined) {
-        (await pgSurveySaved.questions).push(...pgQuestion)
-        await pgSurveyRepo.save(pgSurveySaved)
-      }
-    }
-    if (pgSurveySaved !== undefined) {
+    const pgSurvey = await pgSurveyRepo.save({ name, description, user: { id: userId }, questions }, {
+      transaction: true
+    })
+    if (pgSurvey !== undefined) {
       await this.clearCacheById(["surveys"])
       return {
-        id: pgSurveySaved.id,
-        name: pgSurveySaved.name,
-        description: pgSurveySaved.description,
-        questions: (await pgSurveySaved.questions).map(({ id, description, questionCod }) => {
-          return {
-            id,
-            description,
-            questionCod
-          }
-        })
+        id: pgSurvey.id,
+        name: pgSurvey.name,
+        description: pgSurvey.description,
+        questions: pgSurvey.questions
       }
     }
   }
 
   async update ({ id, name, description, newQuestions, oldQuestions }: DBUpdateSurvey.Input): Promise<DBUpdateSurvey.Output> {
     const pgSurveyRepo = this.getRepository(PgSurvey)
-    await pgSurveyRepo.update(id, { name, description })
-    const pgSurvey = await pgSurveyRepo.findOne(id, {
-      relations: ["questions"]
-    })
-    if (pgSurvey != null) {
+    let pgSurvey = null
+    await this.transaction( async () => {
+      console.log(oldQuestions)
       const pgQuestionRepo = this.getRepository(PgQuestion)
-      const pgAnswerRepo = this.getRepository(PgAnswer)
-      if (oldQuestions !== undefined && newQuestions !== undefined) {
-        const questions = oldQuestions.concat(newQuestions.map(({ id }) => id))
-        await pgAnswerRepo.createQueryBuilder().delete().where({ question: In(oldQuestions) }).execute()
+      const pgQuestions = await pgQuestionRepo.find({
+        where: { id: In(oldQuestions) },
+        select: ["id"]
+      })
+      if (pgQuestions.length > 0) {
+        await pgQuestionRepo.delete(pgQuestions.map(({id}) => id))
       }
-        await pgQuestionRepo.remove(await pgSurvey.questions)
-      const pgQuestions = await pgQuestionRepo.save(newQuestions)
-      if (pgQuestions !== undefined) {
-        (await pgSurvey.questions).push(...pgQuestions)
-        const pgSurveyUpdated = await pgSurveyRepo.save(pgSurvey)
-        pgSurveyRepo.createQueryBuilder()
-          .relation(PgSurvey, "questions")
-          .of(pgSurveyUpdated)
-          .remove(oldQuestions)
-        if (pgSurveyUpdated !== undefined) {
-          await this.clearCacheById([`survey:${pgSurvey.id}`, "surveys"])
-          return true;
+      pgSurvey = await pgSurveyRepo.update(id, { name, description })
+      await pgQuestionRepo.save(newQuestions.map((question) => {
+        return {
+          ...question,
+          survey: { id }
         }
-      }
+      }))
+    })
+    if (pgSurvey !== undefined) {
+      await this.clearCacheById([`survey:${id}`, "surveys"])
+      return true;
     }
   }
 
@@ -99,7 +78,7 @@ export class PgSurveyRepository
         id: id ?? undefined,
         name: name ?? undefined,
         description: description ?? undefined,
-        questions: await questions ?? undefined
+        questions: questions ?? undefined
       }
     }))
   }
@@ -107,7 +86,6 @@ export class PgSurveyRepository
   async listOne ({ id }: DBListOneSurvey.Input): Promise<DBListOneSurvey.Output> {
     const pgSurveyRepo = this.getRepository(PgSurvey)
     const pgSurvey = await pgSurveyRepo.findOne(id, {
-      relations: ["questions"],
       cache: {id: `survey:${id}`, milliseconds: 1000 * 60}
     })
     if (pgSurvey !== undefined) {
@@ -115,7 +93,7 @@ export class PgSurveyRepository
         id: pgSurvey.id ?? undefined,
         name: pgSurvey.name ?? undefined,
         description: pgSurvey.description ?? undefined,
-        questions: await pgSurvey.questions
+        questions: pgSurvey.questions
       }
     }
   }

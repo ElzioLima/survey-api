@@ -8,7 +8,8 @@ import {
   ManyToMany,
   JoinTable,
   OneToMany,
-  ManyToOne
+  ManyToOne,
+  JoinColumn
 } from 'typeorm'
 import { PgQuestion } from './question'
 import { PgUser } from './user'
@@ -25,13 +26,14 @@ export class PgSurvey {
   description!: string
 
   @ManyToOne((type) => PgUser, (user) => user.surveys)
-  user: Promise<PgUser>;
+  user: PgUser;
 
   @OneToMany((type) => PgQuestion, (question) => question.survey, {
-    onDelete: "CASCADE",
-    cascade: ["update", "remove"]
+    cascade: true,
+    eager: true
   })
-  questions: Promise<PgQuestion[]>;
+  @JoinColumn()
+  questions: PgQuestion[];
 
   @CreateDateColumn({ name: "created_at", nullable: false })
   createdAt!: Date

@@ -8,7 +8,6 @@ export namespace CreateSurveyUsecase {
     description: string
     questions: {
       description: string,
-      questionCod: string
     }[]
     userId: string
   }
@@ -20,7 +19,6 @@ export namespace CreateSurveyUsecase {
     questions: {
       id: string,
       description: string,
-      questionCod: string
     }[]
   } | Error
 }
@@ -35,9 +33,7 @@ export namespace UpdateSurveyUsecase {
     name: string
     description: string
     newQuestions: {
-      id: string,
-      description: string,
-      questionCod: string
+      description: string
     }[]
     oldQuestions: string[]
   }
@@ -72,7 +68,6 @@ export namespace ListSurveyUsecase {
     questions: {
       id: string,
       description: string,
-      questionCod: string
     }[]
   }[]
 }
@@ -93,7 +88,6 @@ export namespace ListOneSurveyUsecase {
     questions: {
       id: string,
       description: string,
-      questionCod: string
     }[]
   }
 }

@@ -19,12 +19,14 @@ export class PgAnswer {
   description!: string
 
   @ManyToOne((type) => PgQuestion, (question) => question.answers, {
-    onDelete: "CASCADE"
+    onDelete: "CASCADE",
+    cascade: ["insert"]
   })
   question: PgQuestion;
 
   @ManyToOne((type) => PgUser, (user) => user.answers, {
-    onDelete: "CASCADE"
+    onDelete: "CASCADE",
+    cascade: ["insert"]
   })
   user: PgUser;
 

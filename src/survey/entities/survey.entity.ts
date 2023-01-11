@@ -5,6 +5,5 @@ export class Survey {
     questions: {
         id: string;
         description: string;
-        questionCod: string;
     }[]
 }

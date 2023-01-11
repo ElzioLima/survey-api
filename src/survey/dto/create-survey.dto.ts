@@ -8,7 +8,6 @@ export class CreateSurveyDto {
     @ApiProperty({ required: true })
     questions: {
         description: string;
-        questionCod: string;
     }[]
     @ApiProperty({ required: true })
     userId: string;

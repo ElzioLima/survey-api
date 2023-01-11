@@ -19,19 +19,15 @@ export class PgQuestion {
   @Column()
   description!: string
 
-  @Column()
-  questionCod!: string
-
   @ManyToOne((type) => PgSurvey, (survey) => survey.questions, {
-    onDelete: "CASCADE"
+    nullable: false
   })
-  survey: Promise<PgSurvey>;
+  survey: PgSurvey;
 
   @OneToMany((type) => PgAnswer, (answer) => answer.question, {
-    onDelete: "CASCADE",
-    cascade: ["update", "remove"]
+    cascade: ["remove"]
   })
-  answers: Promise<PgAnswer[]>;
+  answers: PgAnswer[];
 
   @CreateDateColumn({ name: "created_at", nullable: false })
   createdAt!: Date

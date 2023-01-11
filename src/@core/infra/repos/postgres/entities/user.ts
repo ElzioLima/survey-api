@@ -20,10 +20,10 @@ export class PgUser {
   token!: string
 
   @OneToMany((type) => PgSurvey, (survey) => survey.user)
-  surveys: Promise<PgSurvey[]>;
+  surveys: PgSurvey[];
 
   @OneToMany((type) => PgAnswer, (answer) => answer.user)
-  answers: Promise<PgAnswer[]>;
+  answers: PgAnswer[];
 
   @CreateDateColumn({ name: "created_at", nullable: false })
   createdAt!: Date
