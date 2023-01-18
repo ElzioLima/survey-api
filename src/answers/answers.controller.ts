@@ -1,34 +1,47 @@
-import { CreateAnswer, DeleteAnswer, ListOneAnswer, UpdateAnswer } from '@/data/use-cases/answer';
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AnswersService } from './answers.service';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { UpdateAnswerDto } from './dto/update-answer.dto';
 
 @Controller()
+@ApiTags('Respostas')
+@ApiResponse({ status: 200, description: 'Ok' })
 export class AnswersController {
   constructor(
-    private readonly createAnswer: CreateAnswer,
-    private readonly updateAnswer: UpdateAnswer,
-    private readonly listOneAnswer: ListOneAnswer,
-    private readonly deleteAnswer: DeleteAnswer
+    private readonly answersService: AnswersService,
   ) {}
 
-  @Post('questionario/:id/resposta')
-  create(@Body() createAnswerDto: CreateAnswerDto) {
-    return this.createAnswer.create(createAnswerDto);
+  @Post('questionario/:surveyId/resposta')
+  async create(
+    @Param('surveyId') surveyId: string,
+    @Body() createAnswerDto: CreateAnswerDto
+  ) {
+    return await this.answersService.create(surveyId, createAnswerDto);
   }
 
-  @Get('questionario/:id/resposta/:id')
-  findOne(@Param('id') id: string) {
-    return this.listOneAnswer.listOne({ id });
+  @Get('questionario/:surveyId/resposta/:answerId')
+  async findOne(
+    @Param('surveyId') surveyId: string,
+    @Param('answerId') answerId: string
+  ) {
+    return await this.answersService.findOne(surveyId, answerId);
   }
 
-  @Patch('questionario/:id/resposta/:id')
-  update(@Param('id') id: string, @Body() updateAnswerDto: UpdateAnswerDto) {
-    return this.updateAnswer.update({ id, ...updateAnswerDto });
+  @Patch('questionario/:surveyId/resposta/:answerId')
+  async update(
+    @Param('surveyId') surveyId: string,
+    @Param('answerId') answerId: string,
+    @Body() updateAnswerDto: UpdateAnswerDto
+  ) {
+    return await this.answersService.update(surveyId, answerId, updateAnswerDto);
   }
 
-  @Delete('questionario/:id/resposta/:id')
-  remove(@Param('id') id: string) {
-    return this.deleteAnswer.delete({ id });
+  @Delete('questionario/:surveyId/resposta/:answerId')
+  async remove(
+    @Param('surveyId') surveyId: string,
+    @Param('answerId') answerId: string
+  ) {
+    return await this.answersService.remove(surveyId, answerId);
   }
 }

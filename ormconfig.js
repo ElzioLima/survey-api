@@ -2,8 +2,8 @@ module.exports = [
   {
     type: 'postgres',
     url: process.env.DATABASE_URL,
-    logging: true,
-    synchronize: true,
+    logging: process.env.NODE_ENV === 'development',
+    synchronize: false,
     cache: {
       type: 'database',
       duration: 1000 * 60,

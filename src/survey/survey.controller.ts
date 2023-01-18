@@ -1,43 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CreateSurveyDto } from './dto/create-survey.dto';
 import { UpdateSurveyDto } from './dto/update-survey.dto';
-import { CreateSurvey, UpdateSurvey, ListSurvey, ListOneSurvey, DeleteSurvey } from '@/data/use-cases';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { SurveyService } from './survey.service';
+import { HttpStatus } from '@nestjs/common/enums';
+import { HttpException } from '@nestjs/common/exceptions';
 
 @Controller()
 @ApiTags('Questionários')
 @ApiResponse({ status: 200, description: 'Ok' })
 export class SurveyController {
   constructor(
-    private readonly createSurvey: CreateSurvey,
-    private readonly updateSurvey: UpdateSurvey,
-    private readonly listSurvey: ListSurvey,
-    private readonly listOneSurvey: ListOneSurvey,
-    private readonly deleteSurvey: DeleteSurvey
+    private readonly surveyService: SurveyService,
   ) {}
 
   @Post('questionario')
-  create(@Body() createSurveyDto: CreateSurveyDto) {
-    return this.createSurvey.create(createSurveyDto);
+  async create(@Body() surveyService: CreateSurveyDto) {
+    const isCreated = await this.surveyService.create(surveyService);
+    if (!isCreated) {
+      throw new HttpException('Questionário não criado!', HttpStatus.NO_CONTENT);
+    }
+    return isCreated;
   }
 
-  @Get('questionarios/:page')
-  findAll(@Param('page') page: number) {
-    return this.listSurvey.list({ page });
+  @Get('questionarios/?')
+  async findAll(
+    @Query('limit') limit: number,
+    @Query('start') start: number
+  ) {
+    return await this.surveyService.findAll(limit, start);
   }
 
   @Get('questionario/:id')
-  findOne(@Param('id') id: string) {
-    return this.listOneSurvey.listOne({ id });
+  async findOne(@Param('id') id: string) {
+    return await this.surveyService.findOne(id);
   }
 
   @Patch('questionario/:id')
-  update(@Param('id') id: string, @Body() updateSurveyDto: UpdateSurveyDto) {
-    return this.updateSurvey.update({ id, ...updateSurveyDto });
+  async update(@Param('id') id: string, @Body() updateSurveyDto: UpdateSurveyDto) {
+    return await this.surveyService.update(id, updateSurveyDto);
   }
 
   @Delete('questionario/:id')
-  remove(@Param('id') id: string) {
-    return this.deleteSurvey.delete({ id });
+  async remove(@Param('id') id: string) {
+    return await this.surveyService.remove(id);
   }
 }

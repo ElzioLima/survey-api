@@ -5,7 +5,10 @@ export class CreateSurveyDto {
     name: string;
     @ApiProperty({ required: true })
     description: string;
-    @ApiProperty({ required: true })
+    @ApiProperty({ 
+        required: true,
+        type: [Array<Object>], 
+    })
     questions: {
         description: string;
     }[]
